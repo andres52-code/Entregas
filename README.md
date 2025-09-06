@@ -13,17 +13,9 @@ Asegúrate de tener Python 3.x instalado en tu sistema.
 2. Instalación de Dependencias
 El script utiliza las siguientes librerías de Python,( numpy, pandas ,matplotlib)  debes instalarlas 
 
-
 3. Ejecución del Programa
-Guarda el código: Guarda el código del simulador en un archivo de Python, por ejemplo, simulador_solar.py.
+Guarda el código, abre la terminal, y ejecuta el codigo
 
-Abre la terminal: Navega hasta el directorio donde guardaste el archivo.
-
-Ejecuta el script: Ejecuta el programa con el siguiente comando:
-
-Bash
-
-python simulador_solar.py
 4. Interacción con el Programa
 Una vez que ejecutes el script, la consola te pedirá que ingreses varios parámetros para la simulación:
 

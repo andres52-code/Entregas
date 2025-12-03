@@ -1,0 +1,83 @@
+import cv2
+import numpy as np
+from google.colab import files
+import matplotlib.pyplot as plt
+
+# SUBIR IMAGEN
+
+print("Sube la imagen para analizar:")
+uploaded = files.upload()
+filename = next(iter(uploaded))
+
+# Leer imagen
+img = cv2.imdecode(np.frombuffer(uploaded[filename], np.uint8), cv2.IMREAD_COLOR)
+img_rgb = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
+
+plt.imshow(img_rgb)
+plt.title("Imagen Original")
+plt.axis("off")
+plt.show()
+
+# DETECCIÓN DE VEGETACIÓN (HSV)
+
+
+hsv = cv2.cvtColor(img_rgb, cv2.COLOR_RGB2HSV)
+
+# Rango de verdes
+lower_green = np.array([30, 40, 40])
+upper_green = np.array([95, 255, 255])
+
+mask_green = cv2.inRange(hsv, lower_green, upper_green)
+
+veget_pixels = np.count_nonzero(mask_green)
+total_pixels  = mask_green.size
+percent_veg = (veget_pixels / total_pixels) * 100
+
+print(f"Porcentaje de vegetación: {percent_veg:.2f}%")
+
+plt.imshow(mask_green, cmap='Greens')
+plt.title("Máscara Vegetación")
+plt.axis("off")
+plt.show()
+
+# DETECTAR CABLES (HOUGH LINES)
+
+
+gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+edges = cv2.Canny(gray, 60, 150)
+
+lines = cv2.HoughLinesP(
+    edges,
+    rho=1,
+    theta=np.pi/180,
+    threshold=80,
+    minLineLength=100,
+    maxLineGap=20
+)
+
+cable_mask = np.zeros_like(gray)
+
+if lines is not None:
+    for x1, y1, x2, y2 in lines[:, 0]:
+        cv2.line(cable_mask, (x1, y1), (x2, y2), 255, 5)
+
+plt.imshow(cable_mask, cmap='gray')
+plt.title("Cables detectados")
+plt.axis("off")
+plt.show()
+
+# DETECTAR CONTACTO ENTRE VEGETACIÓN Y CABLE
+
+
+interseccion = cv2.bitwise_and(mask_green, cable_mask)
+contact_pixels = np.count_nonzero(interseccion)
+
+percent_contact = (contact_pixels / veget_pixels * 100) if veget_pixels > 0 else 0
+
+print(f"Píxeles en contacto: {contact_pixels}")
+print(f"Porcentaje de vegetación tocando cable: {percent_contact:.2f}%")
+
+plt.imshow(interseccion, cmap='hot')
+plt.title("Zona de contacto (Vegetación - Cable)")
+plt.axis("off")
+plt.show()
